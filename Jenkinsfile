@@ -13,20 +13,21 @@ pipeline {
         }
 
         stage('Build JAR') {
-            agent {
-                docker {
-                    image 'maven:3.9.2-eclipse-temurin-21'  // Maven + JDK
-                    args '-v /var/run/docker.sock:/var/run/docker.sock -v /root/.m2:/root/.m2'
-                }
-            }
             steps {
+                // Run Maven directly in Jenkins container
                 sh 'mvn clean package'
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Docker Build') {
             steps {
+                // Build Docker image on Windows host
                 sh "docker build -t $IMAGE_NAME ."
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh "docker push $IMAGE_NAME"
@@ -36,7 +37,9 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                // Stop old container if exists
                 sh 'docker rm -f todo-app || true'
+                // Run new container
                 sh "docker run -d -p 8081:8080 --name todo-app $IMAGE_NAME"
             }
         }
