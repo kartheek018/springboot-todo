@@ -21,6 +21,7 @@ public class TodoController {
 
     @GetMapping("/{id}")
     public Todo getTodoById(@PathVariable int id) {
+        System.out.println("CI/CD test push");
         return todos.stream()
                 .filter(t -> t.getId() == id)
                 .findFirst()
