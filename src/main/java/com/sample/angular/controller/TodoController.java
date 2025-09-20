@@ -2,30 +2,45 @@ package com.sample.angular.controller;
 
 
 import com.sample.angular.model.Todo;
+import com.sample.angular.service.TodoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/todos")
 public class TodoController {
+    private TodoService todoService;
+
+    public TodoController(TodoService todoService){
+        this.todoService=todoService;
+    }
 
     private List<Todo> todos = new ArrayList<>();
     private int idCounter = 1;
 
     @GetMapping
-    public List<Todo> getAllTodos() {
-        return todos;
+    public ResponseEntity<List<Todo>> getAllTodos() {
+        List<Todo> todos = todoService.findAllTodo();
+        if (todos == null || todos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        System.out.println(todos);
+        return ResponseEntity.ok(todos);
     }
 
     @GetMapping("/{id}")
-    public Todo getTodoById(@PathVariable int id) {
-        System.out.println("CI/CD test push");
-        return todos.stream()
-                .filter(t -> t.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public ResponseEntity<Todo> getTodoById(@PathVariable int id) {
+        Optional<Todo> todo=todoService.findById(id);
+        if(todo.isPresent()){
+            return ResponseEntity.ok(todo.get());
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     @PostMapping
