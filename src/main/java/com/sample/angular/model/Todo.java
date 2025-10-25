@@ -1,7 +1,16 @@
 package com.sample.angular.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "todo")
 public class Todo {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(nullable = false)
     private String task;
     private boolean completed;
 

@@ -20,9 +20,6 @@ public class TodoController {
         this.todoService=todoService;
     }
 
-    private List<Todo> todos = new ArrayList<>();
-    private int idCounter = 1;
-
     @GetMapping
     public ResponseEntity<List<Todo>> getAllTodos() {
         List<Todo> todos = todoService.findAllTodo();
@@ -44,27 +41,23 @@ public class TodoController {
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
-        todo.setId(idCounter++);
-        todos.add(todo);
-        return todo;
+    public void createTodo(@RequestBody Todo todo) {
+        todoService.saveTodo(todo);
     }
 
     @PutMapping("/{id}")
     public Todo updateTodo(@PathVariable int id, @RequestBody Todo updatedTodo) {
-        for (Todo todo : todos) {
-            if (todo.getId() == id) {
-                todo.setTask(updatedTodo.getTask());
-                todo.setCompleted(updatedTodo.isCompleted());
-                return todo;
-            }
-        }
+        System.out.println("Updating Todo with ID: " + id);
+        Optional<Todo> existingTodo=todoService.findById(id);
+        Todo todo=existingTodo.get();
+        todo.setTask(updatedTodo.getTask());
+        todo.setCompleted(updatedTodo.isCompleted());
+        todoService.saveTodo(todo);
         return null;
     }
 
     @DeleteMapping("/{id}")
-    public String deleteTodo(@PathVariable int id) {
-        boolean removed = todos.removeIf(t -> t.getId() == id);
-        return removed ? "Todo deleted successfully" : "Todo not found";
+    public void deleteTodo(@PathVariable int id) {
+        todoService.deleteById(id);
     }
 }
