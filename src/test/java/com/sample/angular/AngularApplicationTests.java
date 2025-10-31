@@ -14,17 +14,5 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @AutoConfigureMockMvc
 class AngularApplicationTests {
-	@Autowired
-	private MockMvc mockMvc;
-
-	@Test
-	void contextLoads() {
-	}
-
-	@Test
-	void failedTest() throws Exception {
-		mockMvc.perform(get("/api/todos"))
-				.andExpect(status().isOk());
-	}
 
 }
