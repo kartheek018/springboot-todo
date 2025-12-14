@@ -1,12 +1,12 @@
 package com.sample.angular.repository;
 
-import com.sample.angular.model.user;
+import com.sample.angular.model.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface userRepository extends JpaRepository<user,Long> {
-    Optional<user> findByUsername(String username);
+public interface userRepository extends JpaRepository<Users,Long> {
+    Optional<Users> findByUsername(String username);
 }

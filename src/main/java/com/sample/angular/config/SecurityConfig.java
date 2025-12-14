@@ -12,6 +12,7 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,6 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
     @Autowired
     JwtAuthFilter jwtAuthFilter;
@@ -41,9 +43,10 @@ public class SecurityConfig {
                     ).permitAll()
 
                     .requestMatchers("/authenticate").permitAll()
-                    .requestMatchers(HttpMethod.GET,"/api/todos/**").hasAuthority(Permissions.TODO_READ.name())
-                    .requestMatchers(HttpMethod.POST,"api/todos/**").hasAuthority(Permissions.TODO_WRITE.name())
-                    .requestMatchers(HttpMethod.DELETE,"api/todos/**").hasAuthority(Permissions.TODO_DELETE.name())
+                    .requestMatchers("/api/users/register").permitAll()
+//                    .requestMatchers(HttpMethod.GET,"/api/todos/**").hasAuthority(Permissions.TODO_READ.name())
+//                    .requestMatchers(HttpMethod.POST,"api/todos/**").hasAuthority(Permissions.TODO_WRITE.name())
+//                    .requestMatchers(HttpMethod.DELETE,"api/todos/**").hasAuthority(Permissions.TODO_DELETE.name())
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -65,6 +68,8 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
+        // Allow UsernameNotFoundException to be thrown (otherwise it is concealed as BadCredentialsException)
+        authenticationProvider.setHideUserNotFoundExceptions(false);
         return new ProviderManager(authenticationProvider);
     }
 }

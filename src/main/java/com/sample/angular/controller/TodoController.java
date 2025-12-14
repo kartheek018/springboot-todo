@@ -5,6 +5,7 @@ import com.sample.angular.model.Todo;
 import com.sample.angular.service.TodoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class TodoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('TODO_READ')")
     public ResponseEntity<List<Todo>> getAllTodos() {
         List<Todo> todos = todoService.findAllTodo();
         if (todos == null || todos.isEmpty()) {
@@ -31,6 +33,7 @@ public class TodoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('TODO_READ')")
     public ResponseEntity<Todo> getTodoById(@PathVariable int id) {
         Optional<Todo> todo=todoService.findById(id);
         if(todo.isPresent()){
@@ -41,11 +44,13 @@ public class TodoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('TODO_WRITE')")
     public void createTodo(@RequestBody Todo todo) {
         todoService.saveTodo(todo);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('TODO_WRITE')")
     public Todo updateTodo(@PathVariable int id, @RequestBody Todo updatedTodo) {
         System.out.println("Updating Todo with ID: " + id);
         Optional<Todo> existingTodo=todoService.findById(id);
@@ -57,6 +62,7 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('TODO_DELETE')")
     public void deleteTodo(@PathVariable int id) {
         todoService.deleteById(id);
     }
